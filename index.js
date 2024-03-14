@@ -1,10 +1,13 @@
-import Employee from "./models/Employee.js";
 import ListPerson from "./models/ListPerson.js";
 import Person from "./models/Person.js";
 import Student from "./models/Student.js";
+import Customer from "./models/Customer.js";
+import Employee from "./models/Employee.js";
 
 let student = new Student();
 let employee = new Employee();
+let customer = new Customer();
+
 let listPerson = new ListPerson();
 let userTypeSelect = document.getElementById("loaiDoiTuong");
 
@@ -18,6 +21,9 @@ const renderFormInput = () => {
   } else if (selectedType === "employee") {
     employee.renderBasicForm();
     employee.renderEmployeeForm();
+  } else if (selectedType === "customer") {
+    customer.renderBasicForm();
+    customer.renderCustomerForm();
   } else if (selectedType === "none") {
     document.getElementById("formContainer").innerHTML = "";
   }
@@ -41,7 +47,8 @@ document.getElementById("btnThem").onclick = function () {
   // if (isValid) {
   // }
   listPerson.addPerson(person);
-
+  renderPersonList();
+  document.getElementById("personForm").reset();
   saveDataLocal();
 };
 // hàm render danh sách person
@@ -112,6 +119,30 @@ const renderStudentList = (arr = listPerson.personList) => {
   document.getElementById("theadList").innerHTML = tableHeader;
   document.getElementById("tbodyList").innerHTML = content;
 };
+const renderCustomerList = (arr = listPerson.personList) => {
+  let content = "";
+  let tableHeader = ` 
+  <tr>
+    <td>Mã số</td>
+    <td>Họ tên</td>
+    <td>Email</td>
+    <td>Địa chỉ</td>
+    <td>Tên công ty</td>
+    <td>Trị giá hóa đơn</td>
+    <td>Đánh Giá</td>
+</tr>`;
+  arr.forEach((person, index) => {
+    // console.log(person);
+    if ("tenCongTy" in person) {
+      let customer = new Customer();
+      customer = { ...customer, ...person };
+      content += `${customer.renderCustomerTable()}`;
+    }
+  });
+  document.getElementById("theadList").innerHTML = tableHeader;
+  document.getElementById("tbodyList").innerHTML = content;
+};
+
 // Hàm giúp lưu trữ dữ liệu xuống localStorage
 function saveDataLocal() {
   let stringData = JSON.stringify(listPerson.personList);
@@ -153,6 +184,9 @@ const getDetailPerson = (id) => {
   } else if ("luong" in person) {
     employee.renderBasicForm();
     employee.renderEmployeeForm();
+  } else if ("tenCongTy" in person) {
+    customer.renderBasicForm();
+    customer.renderCustomerForm();
   }
   // gọi tới tất cả input, select
   let arrField = document.querySelectorAll("form input");
@@ -195,6 +229,8 @@ const changeTableList = () => {
     renderEmployeeList();
   } else if (seleTypeValue === "student") {
     renderStudentList();
+  } else if (seleTypeValue === "customer") {
+    renderCustomerList();
   } else if (seleTypeValue === "person") {
     renderPersonList();
   }
